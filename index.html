@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <!-- Empêche le zoom sur iOS pour faire "vraie app" -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <!-- Tags pour l'écran d'accueil iOS -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Kalc Clone">
+    <link rel="manifest" href="manifest.json">
+    <title>Calcul Mental</title>
+    <style>
+        :root {
+            --bg-color: #000000;
+            --text-color: #ffffff;
+            --accent-color: #333333;
+            --highlight: #007aff;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-color); height: 100vh; height: -webkit-fill-available; display: flex; flex-direction: column; }
+        
+        /* En-tête (Score) */
+        header { padding: 20px; display: flex; justify-content: space-between; font-size: 1.2rem; color: #888; }
+        
+        /* Zone de calcul */
+        #game-area { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 4rem; font-weight: bold; }
+        #input-area { min-height: 5rem; color: var(--highlight); }
+        
+        /* Clavier */
+        #keyboard { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 20px; padding-bottom: max(20px, env(safe-area-inset-bottom)); background: #111; border-top: 1px solid #222; }
+        .key { background: var(--accent-color); color: white; border: none; border-radius: 15px; font-size: 2rem; padding: 20px 0; cursor: pointer; transition: background 0.1s; display: flex; align-items: center; justify-content: center; }
+        .key:active { background: #555; }
+        .key-action { background: #222; color: #ff3b30; }
+        .key-clear { color: #ff9500; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div>Score: <span id="score">0</span></div>
+        <div id="mode">Addition</div>
+    </header>
+
+    <div id="game-area">
+        <div id="equation">2 + 2</div>
+        <div id="input-area"></div>
+    </div>
+
+    <div id="keyboard">
+        <button class="key" onclick="press('1')">1</button>
+        <button class="key" onclick="press('2')">2</button>
+        <button class="key" onclick="press('3')">3</button>
+        <button class="key" onclick="press('4')">4</button>
+        <button class="key" onclick="press('5')">5</button>
+        <button class="key" onclick="press('6')">6</button>
+        <button class="key" onclick="press('7')">7</button>
+        <button class="key" onclick="press('8')">8</button>
+        <button class="key" onclick="press('9')">9</button>
+        <button class="key key-action key-clear" onclick="clearInput()">C</button>
+        <button class="key" onclick="press('0')">0</button>
+        <button class="key key-action" onclick="deleteLast()">⌫</button>
+    </div>
+
+    <script>
+        let correctAnswer = 0;
+        let currentInput = "";
+        let score = 0;
+
+        function generateEquation() {
+            // Génère deux nombres aléatoires entre 2 et 99
+            const a = Math.floor(Math.random() * 98) + 2;
+            const b = Math.floor(Math.random() * 98) + 2;
+            
+            // Pour l'instant on fait de l'addition (tu pourras changer ça facilement)
+            correctAnswer = a + b;
+            document.getElementById('equation').innerText = `${a} + ${b}`;
+            currentInput = "";
+            document.getElementById('input-area').innerText = "";
+        }
+
+        function press(num) {
+            // Limite la taille de l'input
+            if(currentInput.length < 5) {
+                currentInput += num;
+                updateDisplay();
+                checkAnswer();
+            }
+        }
+
+        function clearInput() {
+            currentInput = "";
+            updateDisplay();
+        }
+
+        function deleteLast() {
+            currentInput = currentInput.slice(0, -1);
+            updateDisplay();
+        }
+
+        function updateDisplay() {
+            document.getElementById('input-area').innerText = currentInput;
+        }
+
+        function checkAnswer() {
+            if (parseInt(currentInput) === correctAnswer) {
+                // Flash vert
+                document.getElementById('input-area').style.color = '#34c759';
+                score++;
+                document.getElementById('score').innerText = score;
+                
+                // Petit délai pour voir le vert, puis passe au suivant
+                setTimeout(() => {
+                    document.getElementById('input-area').style.color = '#007aff';
+                    generateEquation();
+                }, 200); // 200 ms
+            }
+        }
+
+        // Lancer le premier calcul
+        generateEquation();
+    </script>
+</body>
+</html>
